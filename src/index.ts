@@ -21,9 +21,9 @@ app.get("/", (req: Request, res: Response) => {
 
 // API Routes
 app.use("/api/auth", authRoutes);
-app.use("/api/library", libraryRoutes);
+app.use("/api/books", libraryRoutes);
 app.use("/api/genre", genreRoutes);
-app.use("/api/transaction", transactionRoutes);
+app.use("/api/transactions", transactionRoutes);
 
 // Error handling middleware
 

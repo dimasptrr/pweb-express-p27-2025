@@ -1,8 +1,12 @@
 import { Router } from 'express';
-import { TransactionController } from '../controllers/transaction.controller';
+import { createTransaction, getAllTransaction, getDetailTransaction, getTransactionStatistics} from '../controllers/transaction.controller';
+import { get } from 'http';
 
 const router = Router();
 
-// Add your transaction routes here
+router.post('/', createTransaction);
+router.get('/', getAllTransaction);
+router.get('/:id', getDetailTransaction);
+router.get('/statistics', getTransactionStatistics);
 
 export default router;
