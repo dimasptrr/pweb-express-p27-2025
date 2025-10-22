@@ -22,7 +22,7 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
     const authHeader = req.headers.authorization;
     
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return ResponseFormatter.unauthorized(res, 'No token provided');
+      return ResponseFormatter.unauthorized(res, 'No token provided', {});
     }
 
     // Extract token
