@@ -1,8 +1,18 @@
-import { Router } from 'express';
-import { GenreController } from '../controllers/genre.controller';
+import express from "express";
+import {
+  createGenre,
+  getAllGenre,
+  getGenreDetail,
+  updateGenre,
+  deleteGenre,
+} from "../controllers/genre.controller";
 
-const router = Router();
+const router = express.Router();
 
-// Add your genre routes here
+router.post("/", createGenre);
+router.get("/", getAllGenre);
+router.get("/:id", getGenreDetail);
+router.patch("/:id", updateGenre);
+router.delete("/:id", deleteGenre);
 
 export default router;
