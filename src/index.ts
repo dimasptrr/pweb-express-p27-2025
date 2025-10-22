@@ -14,16 +14,25 @@ const port = process.env.PORT || 3000;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Routes
+// Health Check Route
+app.get("/health-check", (req: Request, res: Response) => {
+  res.json({
+    success: true,
+    message: "Hello World!",
+    date: new Date().toDateString(),
+  });
+});
+
+// Root route
 app.get("/", (req: Request, res: Response) => {
   res.json({ message: "Server is running!" });
 });
 
 // API Routes
-app.use("/api/auth", authRoutes);
-app.use("/api/books", libraryRoutes);
-app.use("/api/genre", genreRoutes);
-app.use("/api/transactions", transactionRoutes);
+app.use("/auth", authRoutes);
+app.use("/books", libraryRoutes);
+app.use("/genre", genreRoutes);
+app.use("/transactions", transactionRoutes);
 
 // Error handling middleware
 
