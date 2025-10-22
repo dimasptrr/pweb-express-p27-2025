@@ -1,41 +1,74 @@
 import { Request, Response } from "express";
-import  prisma  from "../lib/prisma";
+import prisma from "../lib/prisma";
+import { z } from "zod";
 
-// POST /genre
-export const createGenre = async (req: Request, res: Response) => {
-  const { name, description } = req.body;
-  const genre = await prisma.genre.create({ data: { name, description } });
-  res.json(genre);
-};
+const genreSchema = z.object({
+  name: z.string().min(1, "Genre name is required"),
+  description: z.string().optional(),
+});
 
-// GET /genre
-export const getAllGenre = async (_req: Request, res: Response) => {
-  const genres = await prisma.genre.findMany();
-  res.json(genres);
-};
+export const GenreController = {
+  createGenre: async (req: Request, res: Response) => {
+    try {
+      const data = genreSchema.parse(req.body); 
+      const genre = await prisma.genre.create({ data });
+      res.status(201).json(genre);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: error.errors });
+      }
+      res.status(500).json({ error: "Failed to create genre" });
+    }
+  },
 
-// GET /genre/:id
-export const getGenreDetail = async (req: Request, res: Response) => {
-  const { id } = req.params;
-  const genre = await prisma.genre.findUnique({ where: { id: Number(id) } });
-  if (!genre) return res.status(404).json({ error: "Genre not found" });
-  res.json(genre);
-};
+  getAllGenre: async (_req: Request, res: Response) => {
+    try {
+      const genres = await prisma.genre.findMany();
+      res.status(200).json(genres);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch genres" });
+    }
+  },
 
-// PATCH /genre/:id
-export const updateGenre = async (req: Request, res: Response) => {
-  const { id } = req.params;
-  const { name, description } = req.body;
-  const updated = await prisma.genre.update({
-    where: { id: Number(id) },
-    data: { name, description },
-  });
-  res.json(updated);
-};
+  getGenreDetail: async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      const genre = await prisma.genre.findUnique({
+        where: { id: Number(id) },
+      });
 
-// DELETE /genre/:id
-export const deleteGenre = async (req: Request, res: Response) => {
-  const { id } = req.params;
-  await prisma.genre.delete({ where: { id: Number(id) } });
-  res.json({ message: "Genre deleted" });
+      if (!genre) return res.status(404).json({ error: "Genre not found" });
+      res.status(200).json(genre);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch genre detail" });
+    }
+  },
+
+  updateGenre: async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      const data = genreSchema.partial().parse(req.body); 
+      const updated = await prisma.genre.update({
+        where: { id: Number(id) },
+        data,
+      });
+      res.status(200).json(updated);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: error.errors });
+      }
+      res.status(500).json({ error: "Failed to update genre" });
+    }
+  },
+
+  
+  deleteGenre: async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      await prisma.genre.delete({ where: { id: Number(id) } });
+      res.status(200).json({ message: "Genre deleted successfully" });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete genre" });
+    }
+  },
 };
