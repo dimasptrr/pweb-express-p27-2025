@@ -15,7 +15,7 @@ export const GenreController = {
       res.status(201).json(genre);
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: error.errors });
+        return res.status(400).json({ error: error.issues });
       }
       res.status(500).json({ error: "Failed to create genre" });
     }
@@ -23,7 +23,10 @@ export const GenreController = {
 
   getAllGenre: async (_req: Request, res: Response) => {
     try {
-      const genres = await prisma.genre.findMany();
+      
+      const genres = await prisma.genre.findMany({
+        where: { deletedAt: null }
+      });
       res.status(200).json(genres);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch genres" });
@@ -33,8 +36,9 @@ export const GenreController = {
   getGenreDetail: async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
-      const genre = await prisma.genre.findUnique({
-        where: { id: Number(id) },
+      
+      const genre = await prisma.genre.findFirst({
+        where: { id, deletedAt: null },
       });
 
       if (!genre) return res.status(404).json({ error: "Genre not found" });
@@ -47,28 +51,43 @@ export const GenreController = {
   updateGenre: async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
-      const data = genreSchema.partial().parse(req.body); 
+      const data = genreSchema.partial().parse(req.body);
       const updated = await prisma.genre.update({
-        where: { id: Number(id) },
+        where: { id },
         data,
       });
       res.status(200).json(updated);
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: error.errors });
+        return res.status(400).json({ error: error.issues });
       }
       res.status(500).json({ error: "Failed to update genre" });
     }
   },
 
-  
+
   deleteGenre: async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
-      await prisma.genre.delete({ where: { id: Number(id) } });
+
+      
+      const existing = await prisma.genre.findFirst({
+        where: { id, deletedAt: null }
+      });
+
+      if (!existing) {
+        return res.status(404).json({ error: "Genre not found" });
+      }
+
+      await prisma.genre.update({
+        where: { id },
+        data: { deletedAt: new Date() }
+      });
+
       res.status(200).json({ message: "Genre deleted successfully" });
     } catch (error) {
+      console.error('Delete genre error:', error);
       res.status(500).json({ error: "Failed to delete genre" });
-    }
-  },
+  }
+},
 };
