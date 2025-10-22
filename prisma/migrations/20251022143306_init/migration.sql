@@ -8,7 +8,6 @@ CREATE TABLE "User" (
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
-    @@map("users")
 );
 
 -- CreateTable
@@ -20,7 +19,6 @@ CREATE TABLE "Genre" (
     "deletedAt" TIMESTAMP(3),
 
     CONSTRAINT "Genre_pkey" PRIMARY KEY ("id")
-    @@map("genres")
 );
 
 -- CreateTable
